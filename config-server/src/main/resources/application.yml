@@ -8,5 +8,5 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/mohamedutopios/config-server.git
+          uri: https://github.com/mohamedutopios/config-server-ynov-m1.git
           default-label: main
