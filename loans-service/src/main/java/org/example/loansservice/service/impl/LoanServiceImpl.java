@@ -19,6 +19,9 @@ public class LoanServiceImpl implements LoanService {
     @Autowired
     private AccountServiceClient accountServiceClient;
 
+    @Autowired
+    private org.example.loansservice.kafka.LoanKafkaProducer loanKafkaProducer;
+
     public List<Loan> getAllLoans() {
         return loanRepository.findAll();
     }
@@ -33,14 +36,22 @@ public class LoanServiceImpl implements LoanService {
 
     public Loan saveLoan(Loan loan) {
         if (accountServiceClient.accountExists(loan.getAccountId())) {
-            return loanRepository.save(loan);
+            Loan savedLoan = loanRepository.save(loan);
+            loanKafkaProducer.sendLoanCreated(loan.getAccountId());
+            return savedLoan;
         } else {
             throw new RuntimeException("Account does not exist");
         }
     }
 
     public void deleteLoan(Long id) {
+        Loan loan = loanRepository.findById(id).orElseThrow(() -> new RuntimeException("Loan not found"));
         loanRepository.deleteById(id);
+        loanKafkaProducer.sendLoanDeleted(loan.getAccountId());
+    }
+
+    public void deleteLoanByAccountId(Long accountId) {
+        loanRepository.deleteByAccountId(accountId);
     }
 }
 

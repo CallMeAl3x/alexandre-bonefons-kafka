@@ -22,6 +22,9 @@ public class CardServiceImpl implements CardService {
     @Autowired
     private AccountServiceClient accountServiceClient;
 
+    @Autowired
+    private org.example.cardservice.kafka.CardKafkaProducer cardKafkaProducer;
+
     public List<Card> getAllCards() {
         return cardRepository.findAll();
     }
@@ -36,14 +39,18 @@ public class CardServiceImpl implements CardService {
 
     public Card saveCard(Card card) {
         if (accountServiceClient.accountExists(card.getAccountId())) {
-            return cardRepository.save(card);
+            Card savedCard = cardRepository.save(card);
+            cardKafkaProducer.sendCardCreated(card.getAccountId());
+            return savedCard;
         } else {
             throw new IllegalArgumentException("Account does not exist");
         }
     }
 
     public void deleteCard(Long id) {
+        Card card = cardRepository.findById(id).orElseThrow(() -> new RuntimeException("Card not found"));
         cardRepository.deleteById(id);
+        cardKafkaProducer.sendCardDeleted(card.getAccountId());
     }
 
     @Transactional

@@ -18,6 +18,8 @@ public class Account {
     private String name;
     private String email;
     private Integer solde;
+    private Long totalCards;
+    private Long totalLoans;
 
     public Long getId() {
         return id;
