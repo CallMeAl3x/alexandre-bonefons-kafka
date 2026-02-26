@@ -1,0 +1,45 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: account-service
+          uri: lb://account-service
+          predicates:
+            - Path=/accounts/**
+        - id: card-service
+          uri: lb://card-service
+          predicates:
+            - Path=/cards/**
+        - id: loans-service
+          uri: lb://loans-service
+          predicates:
+            - Path=/loans/**
+        # ---- Library microservices (Exo 4) ----
+        - id: library-book-service
+          uri: lb://library-book-service
+          predicates:
+            - Path=/books/**
+        - id: library-user-service
+          uri: lb://library-user-service
+          predicates:
+            - Path=/users/**
+        - id: library-loan-service
+          uri: lb://library-loan-service
+          predicates:
+            - Path=/library-loans/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    initial-instance-info-replication-interval-seconds: 10
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: api-gateway:${server.port}
