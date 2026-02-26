@@ -19,6 +19,19 @@ spring:
           uri: lb://loans-service
           predicates:
             - Path=/loans/**
+        # ---- Library microservices (Exo 4) ----
+        - id: library-book-service
+          uri: lb://library-book-service
+          predicates:
+            - Path=/books/**
+        - id: library-user-service
+          uri: lb://library-user-service
+          predicates:
+            - Path=/users/**
+        - id: library-loan-service
+          uri: lb://library-loan-service
+          predicates:
+            - Path=/library-loans/**
 
 eureka:
   client:
